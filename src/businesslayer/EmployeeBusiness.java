@@ -48,4 +48,32 @@ public class EmployeeBusiness extends Business {
         }
     }
 
+    /**
+     * Retrieves information about a specific employee.
+     *
+     * @param empId The unique identifier of the employee.
+     * @return A JSON response containing the employee's information or an error
+     *         message if the employee is not found.
+     */
+    public Response get(int empId) {
+        try {
+            // Attempt to retrieve the employee by their ID
+            Employee employee = this.dl.getEmployee(empId);
+            if (employee == null) {
+                // Respond with OK status but indicate that no employee was found with the
+                // provided ID
+                return Response.status(Response.Status.OK)
+                        .entity("{\"error\":\"No employee found with ID: " + empId + ".\"}").build();
+            }
+            // Successfully found the employee, respond with OK status and the employee data
+            return Response.status(Response.Status.OK).entity(employee).build();
+        } catch (Exception e) {
+            // Respond with an Internal Server Error status and the error message
+            // encountered
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity("{\"error\":\"Failed to retrieve the employee data. Reason: " + e.getMessage() + "\"}")
+                    .build();
+        }
+    }
+
 }
