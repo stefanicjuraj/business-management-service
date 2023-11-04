@@ -195,4 +195,56 @@ public class DepartmentBusiness extends Business {
         }
     }
 
+    /**
+     * Deletes a department with the given ID.
+     *
+     * @param companyName The name of the company.
+     * @param deptId      The unique identifier of the department to be deleted.
+     * @return A JSON response indicating success or an error message.
+     */
+    public Response delete(String companyName, int deptId) {
+        try {
+            // Validate the company name against the business configuration.
+            if (!companyName.equals(BusinessConfig.COMPANY_NAME)) {
+                // Respond with an error if the company name does not match the expected value.
+                return Response.status(Response.Status.BAD_REQUEST)
+                        .entity("{\"error\":\"Invalid company name provided. Expected: '" + BusinessConfig.COMPANY_NAME
+                                + "', but got: '" + companyName + "'.\"}")
+                        .build();
+            }
+
+            // Check if the department exists within the specified company.
+            Department existingDept = this.dl.getDepartment(companyName, deptId);
+            if (existingDept == null) {
+                // Respond with an error if the department does not exist.
+                return Response.status(Response.Status.NOT_FOUND)
+                        .entity("{\"error\":\"Department with ID '" + deptId + "' not found in company '" + companyName
+                                + "'.\"}")
+                        .build();
+            }
+
+            // Perform the deletion of the department.
+            int deletedRows = this.dl.deleteDepartment(companyName, deptId);
+            if (deletedRows == 0) {
+                // Respond with an error if no rows were affected in the deletion process.
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                        .entity("{\"error\":\"No changes made. Department with ID '" + deptId
+                                + "' could not be deleted or may already have been removed.\"}")
+                        .build();
+            }
+
+            // Confirm the successful deletion of the department.
+            return Response.status(Response.Status.OK)
+                    .entity("{\"success\":\"Department with ID '" + deptId + "' successfully deleted from company '"
+                            + companyName + "'.\"}")
+                    .build();
+        } catch (Exception e) {
+            // Respond with a general error message for any other exceptions.
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity("{\"error\":\"An unexpected error occurred while attempting to delete the department: "
+                            + e.getMessage() + ".\"}")
+                    .build();
+        }
+    }
+
 }
