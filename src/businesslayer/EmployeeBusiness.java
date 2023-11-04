@@ -207,4 +207,47 @@ public class EmployeeBusiness extends Business {
         }
     }
 
+    /**
+     * Deletes a department with the given ID.
+     *
+     * @param empId The unique identifier of the employee to be deleted.
+     * @return A JSON response indicating success or an error message.
+     */
+    public Response delete(int empId) {
+        // Validate that the employee ID is positive
+        if (empId <= 0) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity("{\"error\":\"Invalid employee ID. ID must be a positive integer.\"}").build();
+        }
+
+        try {
+            // Attempt to retrieve the employee to ensure they exist before deletion
+            Employee exists = this.dl.getEmployee(empId);
+            if (exists == null) {
+                // If the employee doesn't exist, respond with NOT_FOUND
+                return Response.status(Response.Status.NOT_FOUND)
+                        .entity("{\"error\":\"No employee found with ID " + empId + ".\"}").build();
+            }
+
+            // Attempt to delete the employee
+            int deletedRows = this.dl.deleteEmployee(empId);
+            if (deletedRows == 0) {
+                // If no rows were deleted, respond with CONFLICT as the operation was
+                // unsuccessful
+                return Response.status(Response.Status.CONFLICT)
+                        .entity("{\"error\":\"No employee was deleted. Employee may have already been removed or the delete operation failed.\"}")
+                        .build();
+            }
+
+            // If the employee was successfully deleted, confirm with OK
+            return Response.status(Response.Status.OK)
+                    .entity("{\"error\":\"Employee with ID " + empId + " has been successfully deleted.\"}").build();
+        } catch (Exception e) {
+            // Handle any other exceptions during the delete operation with
+            // INTERNAL_SERVER_ERROR
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity("{\"error\":\"An error occurred during deletion: " + e.getMessage() + ".\"}").build();
+        }
+    }
+
 }
