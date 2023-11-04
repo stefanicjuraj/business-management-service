@@ -87,4 +87,63 @@ public class DepartmentBusiness extends Business {
         }
     }
 
+    /**
+     * Inserts a new department into the system.
+     *
+     * @param companyName The name of the company.
+     * @param deptName    The name of the new department.
+     * @param deptNo      The department number.
+     * @param location    The location of the new department.
+     * @return A JSON response containing the new department's information or an
+     *         error message.
+     */
+    public Response insert(String companyName, String deptName, String deptNo, String location) {
+        try {
+            // Validate the company name to match business configuration.
+            if (!companyName.equals(BusinessConfig.COMPANY_NAME)) {
+                // Respond with an error if the company name does not match.
+                return Response.status(Response.Status.BAD_REQUEST)
+                        .entity("{\"error\":\"Invalid company name provided. Expected: '" + BusinessConfig.COMPANY_NAME
+                                + "' but received: '" + companyName + "'.\"}")
+                        .build();
+            }
+
+            // Check for the uniqueness of the department number.
+            Department existingDept = this.dl.getDepartmentNo(companyName, deptNo);
+            if (existingDept != null) {
+                // Respond with an error if the department number is already in use.
+                return Response.status(Response.Status.BAD_REQUEST)
+                        .entity("{\"error\":\"Department number '" + deptNo
+                                + "' is already in use. Please provide a unique department number.\"}")
+                        .build();
+            }
+
+            // Instantiate and set properties for the new department.
+            Department newDept = new Department();
+            newDept.setCompany(companyName);
+            newDept.setDeptName(deptName);
+            newDept.setDeptNo(deptNo);
+            newDept.setLocation(location);
+
+            // Attempt to insert the new department.
+            Department insertedDept = this.dl.insertDepartment(newDept);
+            if (insertedDept == null) {
+                // Respond with an error if the department could not be inserted.
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                        .entity("{\"error\":\"Insertion of the new department failed. Please try again later or contact support.\"}")
+                        .build();
+            }
+
+            // Return the successfully inserted department details.
+            return Response.status(Response.Status.CREATED).entity(gson.toJson(
+                    Collections.singletonMap("success", insertedDept))).build();
+        } catch (Exception e) {
+            // Respond with an error in case of an unexpected exception.
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity("{\"error\":\"An unexpected error occurred: " + e.getMessage()
+                            + ". Please contact support.\"}")
+                    .build();
+        }
+    }
+
 }
