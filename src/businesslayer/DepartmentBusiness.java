@@ -47,4 +47,44 @@ public class DepartmentBusiness extends Business {
         }
     }
 
+    /**
+     * Retrieves information about a specific department.
+     *
+     * @param companyName The name of the company.
+     * @param deptId      The unique identifier of the department.
+     * @return A JSON response containing the department's information or an
+     *         error message if the department is not found.
+     */
+    public Response get(String companyName, int deptId) {
+        try {
+            // Validate the company name against the business configuration.
+            if (!companyName.equals(BusinessConfig.COMPANY_NAME)) {
+                // Return a standardized error message when the company name is invalid.
+                return Response.status(Response.Status.BAD_REQUEST) // Using BAD_REQUEST for invalid inputs.
+                        .entity("{\"error\":\"Invalid company name provided: " + companyName + ". Expected: "
+                                + BusinessConfig.COMPANY_NAME + ".\"}")
+                        .build();
+            }
+
+            // Retrieve the department by ID for the given company name.
+            Department department = this.dl.getDepartment(companyName, deptId);
+            if (department == null) {
+                // Return a standardized error message when no department is found for the given
+                // ID.
+                return Response.status(Response.Status.NOT_FOUND) // Using NOT_FOUND for nonexistent resources.
+                        .entity("{\"error\":\"Department ID " + deptId + " does not exist for company " + companyName
+                                + ".\"}")
+                        .build();
+            }
+
+            // Successfully return the department entity if found.
+            return Response.status(Response.Status.OK).entity(department).build();
+        } catch (Exception e) {
+            // Return a standardized error message in case of a database connection failure.
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity("{\"error\":\"Database connection failed. Error details: " + e.getMessage() + "\"}")
+                    .build();
+        }
+    }
+
 }
