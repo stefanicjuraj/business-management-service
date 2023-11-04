@@ -1,11 +1,25 @@
 package businesslayer;
 
+import com.google.gson.JsonSyntaxException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
+import java.util.Date;
 
+/**
+ * The 'EmployeeBusiness' class extends the 'Business' class and represents the
+ * business logic layer for managing employee-related operations in the
+ * company's application. It provides methods to retrieve, update, insert, and
+ * delete employee information, handling interactions with the data layer and
+ * serving as the intermediary between the service layer and data access layer.
+ *
+ * This class inherits the core functionality from the 'Business' class and
+ * extends it with employee-specific operations. It plays a crucial role in
+ * enforcing business rules and ensuring data integrity for employee-related
+ * data.
+ *
+ */
 public class EmployeeBusiness extends Business {
 
     /**
