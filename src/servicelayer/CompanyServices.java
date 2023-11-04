@@ -89,4 +89,24 @@ public class CompanyServices {
         return departmentBusiness.insert(companyName, deptName, deptNo, location);
     }
 
+    /**
+     * Maps to HTTP PUT requests with the path "/department".
+     *
+     * It consumes data in JSON format - it expects a JSON formatted Department
+     * object as the request body. The departmentBusiness.update(department)
+     * method is called to update the department's information based on the
+     * provided JSON string.
+     *
+     * @param department JSON formatted Department object.
+     * @return the updated department as a JSON response.
+     */
+    @PUT
+    @Path("department")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response updateDepartment(String department) { // public Response updateDepartment(Department department) {
+        System.out.println(department);
+        return departmentBusiness.update(department);
+    }
+
 }
