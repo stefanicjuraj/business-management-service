@@ -149,4 +149,22 @@ public class CompanyServices {
         return employeeBusiness.getAll(companyName);
     }
 
+    /**
+     * Maps to HTTP GET requests with the path "/employee".
+     *
+     * It expects query parameters "emp_id" and produces a response in JSON
+     * format. It calls the employeeBusiness.get(empId) method to retrieve
+     * information about a specific employee based on the employee ID provided
+     * in the query parameters.
+     *
+     * @param empId the employee ID.
+     * @return the department as a JSON response.
+     */
+    @GET
+    @Path("employee")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getEmployee(@QueryParam("emp_id") int empId) {
+        return employeeBusiness.get(empId);
+    }
+
 }
