@@ -1,5 +1,9 @@
 package businesslayer;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 public class EmployeeBusiness extends Business {
@@ -73,6 +77,80 @@ public class EmployeeBusiness extends Business {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity("{\"error\":\"Failed to retrieve the employee data. Reason: " + e.getMessage() + "\"}")
                     .build();
+        }
+    }
+
+    /**
+     * Inserts a new employee into the system.
+     *
+     * @param empName        The employee information.
+     * @param empNo
+     * @param hireDateString
+     * @param job
+     * @param salary
+     * @param deptId
+     * @param mngId
+     * @return A JSON response containing the new department's information or an
+     *         error message.
+     */
+    public Response insert(String empName, String empNo, String hireDateString, String job, Double salary, int deptId,
+            int mngId) {
+
+        try {
+            // Parse the hire date from the provided string
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            sdf.setLenient(false);
+            Date hireDate = sdf.parse(hireDateString);
+
+            // Validate that the hire date is not set in the future
+            Date currentDate = new Date();
+            if (hireDate.after(currentDate)) {
+                return Response.status(Response.Status.BAD_REQUEST)
+                        .entity("{\"error\":\"Hire date cannot be in the future.\"}").build();
+            }
+
+            // Validate the manager ID if provided
+            if (mngId != 0) {
+                Response mngResponse = this.get(mngId);
+                if (mngResponse.getStatus() != Response.Status.OK.getStatusCode()) {
+                    return Response.status(Response.Status.BAD_REQUEST)
+                            .entity("{\"error\":\"Invalid manager ID: No matching manager found.\"}").build();
+                }
+            }
+
+            // Check that the hire date is not on a weekend
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(hireDate);
+            int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
+            if (dayOfWeek == Calendar.SATURDAY || dayOfWeek == Calendar.SUNDAY) {
+                return Response.status(Response.Status.BAD_REQUEST)
+                        .entity("{\"error\":\"Hire date cannot be on a Saturday or Sunday.\"}").build();
+            }
+
+            // Convert the util Date to sql Date
+            java.sql.Date sqlHireDate = new java.sql.Date(hireDate.getTime());
+
+            // Create a new employee object and attempt to insert it
+            Employee newEmployee = new Employee(empName, empNo, sqlHireDate, job, salary, deptId, mngId);
+            Employee employee = dl.insertEmployee(newEmployee);
+            if (employee == null) {
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                        .entity("{\"error\":\"Employee could not be created.\"}").build();
+            }
+
+            // Convert the inserted employee object to JSON
+            String jsonEmployee = gson.toJson(employee);
+            return Response.status(Response.Status.CREATED).entity(jsonEmployee).build();
+
+        } catch (ParseException e) {
+            // Respond with a BAD_REQUEST status if the date format is invalid
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity("{\"error\":\"Invalid date format for hire date. Expected format: 'yyyy-MM-dd'.\"}")
+                    .build();
+        } catch (Exception e) {
+            // Respond with an INTERNAL_SERVER_ERROR status for any other exceptions
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity("{\"error\":\"An unexpected error occurred: " + e.getMessage() + "\"}").build();
         }
     }
 
