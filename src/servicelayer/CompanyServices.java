@@ -228,4 +228,21 @@ public class CompanyServices {
         return employeeBusiness.update(employee);
     }
 
+    /**
+     * Maps to HTTP DELETE requests with the path "employee". Updates the
+     * information of an existing employee. This method maps to HTTP PUT
+     * requests with the path "/employee" and consumes JSON data representing
+     * the employee to be updated. It returns the updated employee data as a
+     * JSON response.
+     *
+     * @param empId the ID of the employee to be deleted.
+     * @return a Response object with a confirmation of the deletion.
+     */
+    @DELETE
+    @Path("employee")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response deleteEmployee(@QueryParam("emp_id") int empId) {
+        return employeeBusiness.delete(empId);
+    }
+
 }
