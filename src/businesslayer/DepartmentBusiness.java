@@ -146,4 +146,53 @@ public class DepartmentBusiness extends Business {
         }
     }
 
+    /**
+     * Updates department information based on a JSON representation.
+     *
+     * @param departmentJson A JSON representation of the department.
+     * @return A JSON response containing the updated department information or
+     *         an error message.
+     */
+    public Response update(String departmentJson) {
+
+        try {
+
+            // Convert the JSON input into a Department object.
+            Department updatedDepartment = gson.fromJson(departmentJson, Department.class);
+
+            // Check if the department number already exists to avoid duplicates.
+            Department existingDeptWithSameNo = this.dl.getDepartmentNo(updatedDepartment.getCompany(),
+                    updatedDepartment.getDeptNo());
+            if (existingDeptWithSameNo != null
+                    && (existingDeptWithSameNo.getDeptNo() == null ? updatedDepartment.getDeptNo() != null
+                            : !existingDeptWithSameNo.getDeptNo().equals(updatedDepartment.getDeptNo()))) {
+                // Respond with a conflict error if the department number is not unique.
+                return Response.status(Response.Status.CONFLICT)
+                        .entity("{\"error\":\"Department number '" + updatedDepartment.getDeptNo()
+                                + "' is already assigned to a different department.\"}")
+                        .build();
+            }
+
+            // Attempt to update the department in the database.
+            Department resultDepartment = this.dl.updateDepartment(updatedDepartment);
+
+            // Check if the department update was unsuccessful.
+            if (resultDepartment == null) {
+                // Respond with a not found error if the department could not be updated.
+                return Response.status(Response.Status.NOT_FOUND)
+                        .entity("{\"error\":\"The specified department does not exist or could not be updated.\"}")
+                        .build();
+            } else {
+                // Return the updated department data.
+                return Response.status(Response.Status.OK).entity(resultDepartment).build();
+            }
+        } catch (JsonSyntaxException e) {
+            // Handle JSON parsing errors and respond with a server error message.
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity("{\"error\":\"Department update failed due to invalid JSON format: " + e.getMessage()
+                            + "\"}")
+                    .build();
+        }
+    }
+
 }
