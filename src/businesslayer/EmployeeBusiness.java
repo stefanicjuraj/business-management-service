@@ -154,4 +154,57 @@ public class EmployeeBusiness extends Business {
         }
     }
 
+    /**
+     * Updates employee information based on a JSON representation.
+     *
+     * @param employeeJson A JSON representation of the employee.
+     * @return A JSON response containing the updated employee information or an
+     *         error message.
+     */
+    public Response update(String employeeJson) {
+        // Check if the employee JSON is null or empty
+        if (employeeJson == null || employeeJson.trim().isEmpty()) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity("{\"error\":\"The employee JSON payload cannot be empty or null.\"}").build();
+        }
+
+        try {
+            // Deserialize the JSON to an Employee object
+            Employee updatedEmployee = gson.fromJson(employeeJson, Employee.class);
+
+            // Validate the ID of the employee
+            if (updatedEmployee.getId() <= 0) {
+                return Response.status(Response.Status.BAD_REQUEST)
+                        .entity("{\"error\":\"The ID value provided is invalid.\"}").build();
+            }
+
+            // Validate the employee name
+            String name = updatedEmployee.getEmpName();
+            if (name == null || name.trim().isEmpty()) {
+                return Response.status(Response.Status.BAD_REQUEST)
+                        .entity("{\"error\":\"The employee name is required and cannot be blank.\"}").build();
+            } else if (name.length() > 50) {
+                return Response.status(Response.Status.BAD_REQUEST)
+                        .entity("{\"error\":\"The employee name cannot exceed 50 characters.\"}").build();
+            }
+
+            // Attempt to update the employee in the database
+            Employee resultEmployee = this.dl.updateEmployee(updatedEmployee);
+
+            // Check if the update operation was successful
+            if (resultEmployee == null) {
+                return Response.status(Response.Status.NOT_FOUND)
+                        .entity("{\"error\":\"Employee not found or could not be updated.\"}").build();
+            } else {
+                // Successfully updated the employee, return the updated object
+                return Response.status(Response.Status.OK).entity(resultEmployee).build();
+            }
+
+        } catch (JsonSyntaxException e) {
+            // Catch JSON parsing errors and return an appropriate error message
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity("{\"error\":\"The JSON format is invalid: " + e.getMessage() + ".\"}").build();
+        }
+    }
+
 }
