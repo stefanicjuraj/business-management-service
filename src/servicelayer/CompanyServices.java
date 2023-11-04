@@ -167,4 +167,47 @@ public class CompanyServices {
         return employeeBusiness.get(empId);
     }
 
+    /**
+     * Maps to HTTP POST requests with the path "/employee".
+     *
+     * Inserts a new employee into the system. Maps to HTTP POST requests with
+     * the path "/employee" and consumes form data while producing a JSON
+     * response. The hire date is parsed from a String into a Date object and
+     * passed to the business layer for processing.
+     *
+     * @param empName        the name of the employee.
+     * @param empNo          the employee number.
+     * @param hireDateString the hiring date in the format 'yyyy-MM-dd'.
+     * @param job            the job title of the employee.
+     * @param salary         the salary of the employee.
+     * @param dept_id        the department ID where the employee works.
+     * @param mng_id         the manager ID who manages the employee.
+     * @return a Response object representing the newly inserted employee as
+     *         JSON.
+     */
+    @POST
+    @Path("employee")
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response insertEmployee(
+            @FormParam("emp_name") String empName,
+            @FormParam("emp_no") String empNo,
+            @FormParam("hire_date") String hireDateString, // Changed to String
+            @FormParam("job") String job,
+            @FormParam("salary") Double salary,
+            @FormParam("dept_id") int dept_id,
+            @FormParam("mng_id") int mng_id) {
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            sdf.setLenient(false);
+            Date hireDate = sdf.parse(hireDateString);
+
+            // Now you have a Date object and can proceed with your existing validations
+            return employeeBusiness.insert(empName, empNo, hireDateString, job, salary, dept_id, mng_id);
+        } catch (ParseException e) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity("Invalid date format for hire_date, expected format is 'yyyy-MM-dd'.").build();
+        }
+    }
+
 }
