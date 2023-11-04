@@ -39,4 +39,25 @@ public class CompanyServices {
         return departmentBusiness.getAll(companyName);
     }
 
+    /**
+     * Maps to HTTP GET requests with the path "/department".
+     *
+     * It expects query parameters "company" and "dept_id" and produces a
+     * response in JSON format. It calls the departmentBusiness.get(companyName,
+     * deptId) method to retrieve information about a specific department based
+     * on the company and department ID provided in the query parameters.
+     *
+     * @param companyName the name of the company (your RIT username).
+     * @param deptId      the department ID.
+     * @return the department as a JSON response.
+     */
+    @GET
+    @Path("department")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getDepartment(
+            @QueryParam("company") String companyName,
+            @QueryParam("dept_id") int deptId) {
+        return departmentBusiness.get(companyName, deptId);
+    }
+
 }
