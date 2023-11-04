@@ -109,4 +109,26 @@ public class CompanyServices {
         return departmentBusiness.update(department);
     }
 
+    /**
+     * Maps to HTTP DELETE requests with the path "department".
+     *
+     * It expects query parameters "company" and "dept_id" and produces a
+     * response in JSON format. When accessed, it calls the
+     * departmentBusiness.delete(companyName, deptId) method to delete a
+     * department based on the company and department ID provided in the query
+     * parameters.
+     *
+     * @param companyName the company name
+     * @param deptId      the department id
+     * @return the feedback as a JSON response.
+     */
+    @DELETE
+    @Path("department")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response deleteDepartment(
+            @QueryParam("company") String companyName,
+            @QueryParam("dept_id") int deptId) {
+        return departmentBusiness.delete(companyName, deptId);
+    }
+
 }
