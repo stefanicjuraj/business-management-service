@@ -60,4 +60,33 @@ public class CompanyServices {
         return departmentBusiness.get(companyName, deptId);
     }
 
+    /**
+     * Maps to HTTP POST requests with the path "/department".
+     *
+     * It consumes data in the form of application/x-www-form-urlencoded and
+     * expects form parameters such as "company," "dept_name," "dept_no," and
+     * "location".
+     *
+     * The departmentBusiness.insert(companyName, deptName, deptNo, location)
+     * method is called to add a new department to the DB which then returns the
+     * result as a JSON response.
+     *
+     * @param companyName the name of the company.
+     * @param deptName    the name of the department.
+     * @param deptNo      the department number.
+     * @param location    the location of the department.
+     * @return the newly created department as a JSON response.
+     */
+    @POST
+    @Path("department")
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response addDepartment(
+            @FormParam("company") String companyName,
+            @FormParam("dept_name") String deptName,
+            @FormParam("dept_no") String deptNo,
+            @FormParam("location") String location) {
+        return departmentBusiness.insert(companyName, deptName, deptNo, location);
+    }
+
 }
