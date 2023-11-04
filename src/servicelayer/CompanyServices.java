@@ -131,4 +131,22 @@ public class CompanyServices {
         return departmentBusiness.delete(companyName, deptId);
     }
 
+    /**
+     * Maps to HTTP GET requests with the path "/employees" relative to the base
+     * path defined for the class (e.g., "/CompanyServices").
+     *
+     * Retrieves all employees from the specified company. The method maps to
+     * HTTP GET requests with the path "/employees" and produces a response in
+     * JSON format.
+     *
+     * @param companyName
+     * @return
+     */
+    @GET
+    @Path("employees")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getEmployees(@QueryParam("company") String companyName) {
+        return employeeBusiness.getAll(companyName);
+    }
+
 }
